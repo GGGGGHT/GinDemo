@@ -7,12 +7,13 @@ import (
 	"gindemo/models"
 	_ "gindemo/models"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
 func main() {
 	engine := gin.Default()
-	engine.Use(middleware.RequestInfos())
+	//engine.Use(middleware.RequestInfos())
 	engine.GET("/hello", func(context *gin.Context) {
 		fmt.Println("请求路径: ", context.FullPath())
 		context.Writer.WriteString("world")
@@ -99,7 +100,9 @@ func main() {
 
 	group.DELETE("/:id", deleteHandler)
 
-	engine.GET("/query", func(context *gin.Context) {
+	// 为单独的某个请求设置中间件.
+	engine.GET("/query", middleware.RequestInfos(), func(context *gin.Context) {
+		fmt.Println("hello world")
 		context.JSON(200, map[string]interface{}{
 			"code": 200,
 			"data": "ok",
@@ -107,6 +110,14 @@ func main() {
 	})
 	// 设置使用的端口号为8090
 	// engine.Run(":8090")
+	if _, err := models.Db.Exec("CREATE TABLE person(" +
+		"id int AUTO_INCREMENT PRIMARY KEY," +
+		"name varchar(12) NOT NULL," +
+		"age int DEFAULT 1" +
+		");"); err != nil {
+		log.Fatal(err.Error())
+		return
+	}
 	if err := engine.Run(); err != nil {
 		//log.Fatal(err.Error())
 		fmt.Println(err.Error())
