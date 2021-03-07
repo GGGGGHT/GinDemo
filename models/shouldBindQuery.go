@@ -13,6 +13,12 @@ type Register struct {
 	Phone    int    `form:"phone" json:"phone" binding:"required"`
 }
 
+type Response struct {
+	Code    int
+	Message string
+	Data    interface{}
+}
+
 func (r *Register) String() string {
 	return fmt.Sprintf("name: " + r.UserName + ",password: " + r.Password + ",phone: " + string(rune(r.Phone)))
 }
